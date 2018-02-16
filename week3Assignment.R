@@ -41,3 +41,5 @@ str_match(test5, '<(.+?)>.+?</\\1>')
 code <- 'clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr'
 
 paste(str_replace(unlist(str_match_all(code, '[A-Z.!]')),'\\.',' '),collapse='')
+
+code %>% str_match_all('[A-Z.!]') %>% unlist() %>% str_replace('\\.', ' ') %>% paste(collapse='')

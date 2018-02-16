@@ -1,0 +1,150 @@
+---
+output: html_document
+---
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="./custom.css">
+
+```{r, echo=FALSE}
+library(stringr)
+```
+
+<div class='jumbotron'>
+  <h2 class='display-3 text-uppercase'>week 3 Assignment</h2>
+  <h4 class='right text-uppercase'>By Brian Weinfeld</h4>
+  <div class='clearfix'></div>
+  <h5 class='right text-uppercase'>February 15, 2018</h5>
+</div>
+
+<div class='page-header text-uppercase'>
+  <h3>Regulax Expressions with Stringr</h3>
+</div>
+
+<div class='well'>
+3. Copy the introductory example. The vector names stores the extracted names.
+</div>
+
+```{r}
+raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+#from textbook
+names <- unlist(str_extract_all(raw.data, '[[:alpha:]., ]{2,}'))
+names
+```
+
+<div class='well'>
+* Use the tools of this chapter to rearrange the vector so that all elements conform to the standard first_name last_name.
+</div>
+
+```{r}
+corrected_names <- str_replace_all(names, '([:graph:]+?), ([:print:]+)', '\\2 \\1')
+corrected_names
+```
+
+<div class='alert alert-info'>
+I was uncertain how to properly format Mr. Burns' name to follow the assignment. His first name is Charles (C) but as it's an abbreviation he would likely want Montgomery used as his first name. Ultimately, I decided to keep both ala M. Night Shyamalan.
+</div>
+
+<div class='well'>
+* Construct a logical vector indicating whether a character has a title (ie, Rev and Dr).
+</div>
+
+```{r}
+has_title <- str_detect(corrected_names, '[:alpha:]{2,}\\.')
+has_title
+```
+
+<div class='well'>
+* Construct a logical vector indicating whether a character has a second name.
+</div>
+
+```{r}
+str_detect(corrected_names, '([:print:]+? ){2}[:print:]+') & !has_title
+```
+
+<div class='well'>
+4. Describe the type of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
+</div>
+
+<div class='well'>
+* [0-9]+\\$
+</div>
+
+```{r}
+test <- c('200$', "Hello do you have 350$?", "1$! That is too much!")
+str_match(test, '[0-9]+\\$')
+```
+
+<div class='alert alert-info'>
+This matches any string that contains a string of digits of any length ending in a dollar sign. Apparently some parts of Europe and Canada typically place the dollar sign after the digits, so perhaps this is trying to match those situations
+</div>
+
+<div class='well'>
+* \\b[a-z]{1,4}\\b
+</div>
+
+```{r}
+test2 <- c('what', "we're wishing you well", "Best wishes with you")
+str_match(test2, '\\b[a-z]{1,4}\\b')
+```
+
+<div class='alert alert-info'>
+This matches any string that contains a 1 to 4 lowercase characters using only the standard English 26 characters. This may not grab the entire word as in the case of accented characters or possessives and contractions.
+</div>
+
+<div class='well'>
+* .*?\\.txt$
+</div>
+
+```{r}
+test3 <- c('hello.txt', '#(*$&@#($*&#.txt', 'The file you want is called name.txt')
+str_match(test3, '.*?\\.txt$')
+```
+
+<div class='alert alert-info'>
+This matches the entirety of any string that concludes with the four characters '.txt'. This may be attempting to find text file names but as in the example above, grabs extra likely unneeded information. 
+</div>
+
+<div class='well'>
+* \\d{2}/\\d{2}/\\d{4}
+</div>
+
+```{r}
+test4 <- c('10/15/2000', '33/99/9999', '100/10/100000')
+str_match(test4, '\\d{2}/\\d{2}/\\d{4}')
+```
+
+<div class='alert alert-info'>
+This seems to be attempting to match a date found in a string. 2 digits, a slash, 2 more digits, a slash and finally 4 digits. However, this will end up matching non-date like strings and also can match string formated as dates with invalid dates (for example, month 33). It will also miss single month/day combinations
+</div>
+
+<div class='well'>
+* <(.+?)>.+?</\\1>
+</div>
+
+```{r}
+test5 <- c('<hello> alsifejaslfij </hello>', '<p>This is an <b>important</b> example</p>')
+str_match(test5, '<(.+?)>.+?</\\1>')
+```
+
+<div class='alert alert-info'>
+This string seems like it would be used when processing html. It captures the first tag that it finds (identified by being inside the < and > symbols) and then looks for a matching closing bracket further on in the text. This could be useful if you wanted to extract all the tables on a webpage for example.
+</div>
+
+<div class='well'>
+9. The following code hides a secret message. Crack it with R and regular expressions.
+</div>
+
+```{r}
+code <- 'clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr'
+code %>% str_match_all('[A-Z.!]') %>% unlist() %>% str_replace('\\.', ' ') %>% paste(collapse='')
+```
+
+<div class='well'>
+I began by exploring the data looking for patterns. I thought perhaps the puzzle was similar to a puzzle in the daily newspaper where each letter was a substitution for another letter. I created a frequency table but saw no pattern.
+
+Next, I used regular expressions to try to find repeated patterns in the data but found none.
+
+Next, I examined the digits in the code with regular expressions again looking for a pattern.
+
+Finally, I isolated the capital letters. This led to my breakthrough. The remaining code was written from there to clean up the output.
+</div>
